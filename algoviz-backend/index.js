@@ -4,7 +4,14 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const connectDB = require('./config/db'); // Import DB connection function
+const connectDB = require('./config/db');
+const authMiddleware = require('./middleware/authMiddleware');
+const errorMiddleware = require('./middleware/errorMiddleware');
+
+const lessonRoutes = require('./routes/lessonRoutes');
+const quizRoutes = require('./routes/quizRoutes');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -15,16 +22,22 @@ app.use(cors());
 // Connect to MongoDB
 connectDB();
 
-// Basic test route
+// Public routes
+app.use('/api/auth', authRoutes);
+
+// Protected routes requiring auth middleware
+app.use('/api/lessons', authMiddleware, lessonRoutes);
+app.use('/api/quizzes', authMiddleware, quizRoutes);
+app.use('/api/users', authMiddleware, userRoutes);
+
+// Test route
 app.get('/', (req, res) => {
   res.send('AlgoViz Backend API is running');
 });
 
-// Example: import and use modular routes as you build out your API
-// const lessonRoutes = require('./routes/lessonRoutes');
-// app.use('/api/lessons', lessonRoutes);
+// Centralized error handling middleware
+app.use(errorMiddleware);
 
-// Server Start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
