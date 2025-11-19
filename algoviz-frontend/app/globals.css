@@ -1,43 +1,71 @@
-/* algoviz-frontend/app/globals.css */
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Roboto:wght@400;700&display=swap');
 
-/* Tailwind CSS base styles */
+/* Tailwind CSS base */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Add custom global styles below (optional) */
-
 html, body {
+  height: 100%;
   min-height: 100vh;
-  background-color: #f9fafb;
-  color: #111827;
-  font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
   margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: 'Montserrat', 'Roboto', 'Segoe UI', 'Arial', sans-serif;
+  background:
+    linear-gradient(135deg, #0A192F 60%, #00BCD4 100%),
+    url('/cyber-background.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  color: #E0E0E0;
+  transition: background 0.3s;
+}
+
+/* Subtle binary/data stream animation (optional) */
+body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: url('/data-stream.gif');
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
 }
 
 a {
-  text-decoration: none;
   color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-/* Custom scrollbars */
-::-webkit-scrollbar {
-  width: 8px;
+/* Customized scrollbars */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: #00BCD4; border-radius: 4px; }
+
+/* Utility classes for main colors */
+.bg-cyber { background-color: #0A192F; }
+.text-cyber { color: #0A192F; }
+.bg-electric { background-color: #00BCD4; }
+.text-electric { color: #00BCD4; }
+.bg-accent { background-color: #FF6D00; }
+.text-accent { color: #FF6D00; }
+.bg-success { background-color: #8BC34A; }
+.text-success { color: #8BC34A; }
+
+.btn {
+  display: inline-block;
+  font-weight: 700;
+  padding: 0.75em 1.5em;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #FF6D00, #00BCD4);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(10,25,47,0.2);
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.btn:hover {
+  box-shadow: 0 4px 12px #00BCD4;
+  background: linear-gradient(90deg, #00BCD4, #FF6D00);
+  color: #fff;
 }
 
-::-webkit-scrollbar-thumb {
-  background-color: rgba(107, 114, 128, 0.5); /* Tailwind blue-gray-400 */
-  border-radius: 4px;
-}
-
-/* Global utility classes */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* Other global styles or font imports can go here */
+/* Add more utilities according to your needs */

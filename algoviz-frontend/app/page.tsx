@@ -1,29 +1,19 @@
-// algoviz-frontend/app/page.tsx
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function HomePage() {
   return (
-    <main className="max-w-5xl mx-auto px-6 py-20 text-center">
-      <h1 className="text-5xl font-extrabold mb-6 text-blue-600">Welcome to AlgoViz</h1>
-      <p className="text-lg mb-10 max-w-xl mx-auto">
-        Master Data Structures and Algorithms with interactive lessons, detailed animations, 
-        and quizzes designed to boost your understanding and coding skills.
-      </p>
-
-      <div className="space-x-4">
-        <Link
-          href="/lessons"
-          className="inline-block px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Browse Lessons
-        </Link>
-        <Link
-          href="/login"
-          className="inline-block px-6 py-3 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
-        >
-          Login
-        </Link>
+    <section className="relative min-h-[70vh] flex flex-col items-center justify-center">
+      <div className="absolute inset-0 bg-cyber/80 z-0" />
+      <div className="relative z-10 text-center px-4 pt-20">
+        <Image src="/logo.png" width={80} height={80} alt="Logo" className="mx-auto mb-6 animate-pulse" />
+        <h1 className="text-white font-extrabold text-4xl md:text-6xl mb-4">Unlock Your Potential with Visionary Algorithms</h1>
+        <p className="text-white/80 text-lg md:text-2xl max-w-2xl mx-auto mb-8">
+          The cyber learning hub for mastering DSA, machine learning, and web development.
+        </p>
+        <Link href="/courses" className="btn text-lg bg-accent hover:bg-electric shadow-lg animate-glow">Explore Courses</Link>
+        {/* You can add a stylized SVG animation for the eye/brain here */}
       </div>
-    </main>
+    </section>
   );
 }
