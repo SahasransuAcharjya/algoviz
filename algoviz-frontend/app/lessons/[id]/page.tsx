@@ -63,3 +63,63 @@ export default function Home() {
     </div>
   );
 }
+// algoviz-frontend/app/lessons/[id]/page.tsx
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import AnimationPlayer from '../../../components/AnimationPlayer';
+
+interface Lesson {
+  _id: string;
+  title: string;
+  description: string;
+  content: string;
+  animations: any[];
+}
+
+export default function LessonPage() {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const [lesson, setLesson] = useState<Lesson | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+
+    async function fetchLesson() {
+      try {
+        const res = await fetch(`/api/lessons/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch lesson');
+        const data = await res.json();
+        setLesson(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchLesson();
+  }, [id]);
+
+  if (loading) return <p>Loading lesson...</p>;
+  if (!lesson) return <p>Lesson not found.</p>;
+
+  return (
+    <main className="max-w-4xl mx-auto px-6 py-12">
+      <h1 className="text-3xl font-bold mb-4">{lesson.title}</h1>
+      <p className="text-lg mb-6">{lesson.description}</p>
+
+      <section className="mb-8">
+        <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
+      </section>
+
+      {lesson.animations.length > 0 && (
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Animations</h2>
+          <AnimationPlayer animations={lesson.animations} />
+        </section>
+      )}
+    </main>
+  );
+}

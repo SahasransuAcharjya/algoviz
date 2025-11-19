@@ -1,65 +1,134 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface Question {
+  questionText: string;
+  options: string[];
+  correctAnswerIndex: number;
+  explanation?: string;
+}
+
+interface Quiz {
+  _id: string;
+  questions: Question[];
+  // Add more quiz fields if needed
+}
+
+export default function QuizPage() {
+  const router = useRouter();
+  const { quizId } = router.query;
+
+  const [quiz, setQuiz] = useState<Quiz | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!quizId) return;
+
+    async function fetchQuiz() {
+      try {
+        const res = await fetch(`/api/quizzes/${quizId}`);
+        if (!res.ok) throw new Error('Failed to fetch quiz');
+        const data = await res.json();
+        setQuiz(data);
+        setAnswers(new Array(data.questions.length).fill(null));
+      } catch (err) {
+        setError('Failed to load quiz.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchQuiz();
+  }, [quizId]);
+
+  const handleOptionChange = (questionIdx: number, optionIdx: number) => {
+    if (submitted) return; // prevent changes after submit
+    const newAnswers = [...answers];
+    newAnswers[questionIdx] = optionIdx;
+    setAnswers(newAnswers);
+  };
+
+  const handleSubmit = () => {
+    if (!quiz) return;
+    let calculatedScore = 0;
+    answers.forEach((answer, i) => {
+      if (answer === quiz.questions[i].correctAnswerIndex) {
+        calculatedScore += 1;
+      }
+    });
+    setScore(calculatedScore);
+    setSubmitted(true);
+  };
+
+  if (loading) return <p>Loading quiz...</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
+  if (!quiz) return <p>Quiz not found.</p>;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Quiz</h1>
+
+      {quiz.questions.map((question, qIdx) => (
+        <div key={qIdx} className="mb-6 border-b pb-4">
+          <p className="font-semibold mb-2">
+            {qIdx + 1}. {question.questionText}
           </p>
+          <div>
+            {question.options.map((option, oIdx) => {
+              const isCorrect = submitted && oIdx === question.correctAnswerIndex;
+              const isSelected = answers[qIdx] === oIdx;
+              const optionClass = submitted
+                ? isCorrect
+                  ? 'bg-green-200'
+                  : isSelected
+                  ? 'bg-red-200'
+                  : ''
+                : '';
+
+              return (
+                <label
+                  key={oIdx}
+                  className={`block p-2 rounded cursor-pointer ${optionClass}`}
+                >
+                  <input
+                    type="radio"
+                    name={`question-${qIdx}`}
+                    value={oIdx}
+                    checked={isSelected}
+                    disabled={submitted}
+                    onChange={() => handleOptionChange(qIdx, oIdx)}
+                    className="mr-2"
+                  />
+                  {option}
+                </label>
+              );
+            })}
+          </div>
+          {submitted && question.explanation && (
+            <p className="mt-2 italic text-gray-700">Explanation: {question.explanation}</p>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      ))}
+
+      {!submitted ? (
+        <button
+          onClick={handleSubmit}
+          disabled={answers.includes(null)}
+          className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
+        >
+          Submit
+        </button>
+      ) : (
+        <p className="text-xl font-semibold mt-4">
+          Your Score: {score} / {quiz.questions.length}
+        </p>
+      )}
+    </main>
   );
 }
